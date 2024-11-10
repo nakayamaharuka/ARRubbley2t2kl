@@ -39,7 +39,7 @@
                 <a-entity
                     id="bowser-model"
                     scale="0.5 0.5 0.5"
-                    position = "0 1 -1"
+                    position = "0 1 -1.1"
                     animation-mixer="loop: repeat"
                     gltf-model="#animated-asset"
                     class="clickable"
@@ -51,25 +51,30 @@
         </a-scene>
 
         <script>
-            // マーカー検出イベントを監視し、音声再生を管理
             const marker = document.querySelector("#animated-marker");
             const sound = document.querySelector("#broken");
             let playedOnce = false; // 音声が再生されたかどうかを追跡
-
+        
+            // マーカーが検出されたときの処理
             marker.addEventListener("markerFound", () => {
-                // 音声がまだ再生されていない場合のみ再生
                 if (!playedOnce && sound.paused) {
-                    sound.play().catch((error) => {
-                        console.log("オートプレイエラー:", error);
-                    });
-                    playedOnce = true; // 再生されたことを記録
+                    // 音声再生を試みる（ユーザー操作が必要な場合のためのクリックイベントを追加）
+                    document.body.addEventListener('click', playSoundOnce, { once: true });
                 }
             });
-
+        
             marker.addEventListener("markerLost", () => {
                 sound.pause(); // マーカーが見えなくなったら音声停止
                 sound.currentTime = 0; // 音声の再生位置をリセット
             });
-        </script>
+        
+            function playSoundOnce() {
+                sound.play().then(() => {
+                    playedOnce = true; // 再生が成功したらフラグを立てる
+                }).catch(error => {
+                    console.log("オートプレイエラー:", error);
+                });
+            }
+        </script>        
     </body>
 </html>
